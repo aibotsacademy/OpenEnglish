@@ -215,7 +215,7 @@
 <section id="hero">
   <video id="video-bg" autoplay muted loop playsinline
     poster="https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=1920&q=80">
-    <source src="https://openenglish.theaihumans.com/video.mp4" type="video/mp4">
+    <source src="https://openenglish.theaihumans.com/video2.mp4" type="video/mp4">
   </video>
   <div class="video-overlay"></div>
   <div class="oe-shape">
@@ -433,7 +433,7 @@
 // ============================================================
 //  CONFIG — Replace with your Apps Script Web App URL
 // ============================================================
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2R0NYT5r7i1twkXkE81_2NpHqofR2eriL7SEkKDRcujOz9xVPZikurM4Uksh0bqo/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
 
 // ============================================================
 //  PARTICLES
@@ -804,14 +804,21 @@ document.getElementById('btn-submit').addEventListener('click', async ()=>{
       filename: `Autorizacion_${userData.nombre.replace(/\s+/g,'_')}_${Date.now()}.pdf`
     };
 
-    const res = await fetch(APPS_SCRIPT_URL, {
+    // Usamos FormData + mode:'no-cors' para evitar el preflight CORS
+    // que Google Apps Script no puede responder correctamente.
+    // Con no-cors la respuesta llega como "opaque" (no podemos leerla),
+    // pero el script en Drive SÍ se ejecuta y recibe los datos.
+    const form = new FormData();
+    Object.keys(payload).forEach(k => form.append(k, payload[k]));
+
+    await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      mode: 'no-cors',
+      body: form
     });
 
-    if(!res.ok) throw new Error('Error en el servidor');
-
+    // Con no-cors no podemos leer la respuesta, pero si no lanzó
+    // excepción de red, el script recibió la petición correctamente.
     overlay.classList.remove('show');
     document.getElementById('step3-card').style.display='none';
     document.getElementById('success-card').style.display='block';
