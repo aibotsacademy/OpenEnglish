@@ -789,7 +789,7 @@ document.getElementById('btn-submit').addEventListener('click', async ()=>{
     const pdfDataURI = await generatePDF();
     const base64PDF = pdfDataURI.split(',')[1];
 
-    loadingText.textContent = 'Enviando a Google Drive...';
+    loadingText.textContent = 'Enviando Documento Firmado...';
 
     const payload = {
       nombre: userData.nombre,
